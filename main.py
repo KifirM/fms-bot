@@ -1,12 +1,8 @@
-from hashlib import md5
+
 import requests
-import json
+
 from bs4 import BeautifulSoup
 from datetime import date
-import excel2img
-from PIL import Image
-
-
 
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36'
 session = requests.Session()
@@ -47,15 +43,6 @@ else:
     print('Failed to download file')
 
 
-excel2img.export_img("Sample.xlsx", f"{date}-10.png",'10',None)
-try:
- excel2img.export_img("Sample.xlsx", f"{date}-11.png",'11',None)
-except:
-    excel2img.export_img("Sample.xlsx", f"{date}-11.png", '11 ', None)
-
-
-Image.open(f'{date}-11.png').save(f'{date}-11.jpg')
-Image.open(f'{date}-10.png').save(f'{date}-10.jpg')
 
 
 
@@ -69,6 +56,6 @@ def send_photo(chat_id, image_path, image_caption=""):
     with open(image_path, "rb") as image_file:
         ret = requests.post(url, data=data, files={"document": image_file})
     return ret.json()
-send_photo('5480167477',f'{date}-11.jpg')
+send_photo('5480167477',f'Sample.xlsx')
 
 session.close()
