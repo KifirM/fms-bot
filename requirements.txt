@@ -58,7 +58,6 @@ PySocks==1.7.1
 python-socks==2.4.4
 pythonnet==3.0.3
 pywebview==5.0.5
-pywin32==307
 requests==2.31.0
 selenium==4.18.1
 setuptools==69.1.1
