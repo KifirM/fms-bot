@@ -166,4 +166,4 @@ async def help_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'контакты 📞')
 async def contacts_cmd(message: types.Message):
-    await message.answer('<b>Контакты:</b>\nПо вопросам и предложениям — @ag_st_d', parse_mode='HTML')
+    await message.answer('<b>Контакты:</b>\nПо вопросам и предложениям — @k1f1r1k @ag_st_d', parse_mode='HTML')
