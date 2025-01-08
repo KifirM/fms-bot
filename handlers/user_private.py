@@ -18,6 +18,19 @@ user_private_router.message.filter(ChatTypeFilter(['private']))
 
 liters = ['Μ', 'Ξ', 'Ο', 'Π', 'Ρ', 'Σ', 'Τ', 'Φ', 'Χ', 'Ψ', 'Β', 'Ζ', 'Γ', 'Ι', 'Δ', 'Η', 'Θ', 'Ε', 'К', 'Λ']
 groups = ['B', 'A']
+classes = ['10', '11']
+
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, InlineKeyboardButton
+
+
+def class_variants():
+    with open(f'data_10.json', 'r', encoding="utf-8") as f:
+        file = json.load(f)
+        button_list = file['classes']['10']
+    with open(f'data_11.json', 'r', encoding="utf-8") as f:
+        file = json.load(f)
+        button_list = button_list + file['classes']['11']
+    return button_list
 
 
 @user_private_router.message(CommandStart())
@@ -76,20 +89,12 @@ async def class_cmd(message: types.Message):
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
-@user_private_router.message(F.text.lower() == '10')
-async def liter_10_cmd(message: types.Message, state: FSMContext):
-    await state.update_data(user_class='10')
-    await message.answer('выбери литеру', reply_markup=reply.liter_kb_10.as_markup(resize_keyboard=True))
-
-
 @user_private_router.message(F.text == 'Выбрать другую литеру 🔠')
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if len(data.keys()) == 2 or len(data.keys()) == 3:
-        if data['user_class'] == '10':
-            await message.answer('выбери класс', reply_markup=reply.liter_kb_10.as_markup(resize_keyboard=True))
-        elif data['user_class'] == '11':
-            await message.answer('выбери класс', reply_markup=reply.liter_kb_11.as_markup(resize_keyboard=True))
+        if data['user_class']:
+            await send_button(message, state)
         else:
             await state.clear()
             await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
@@ -104,11 +109,34 @@ async def back_cmd(message: types.Message, state: FSMContext):
     await message.answer('Выбери действие:',
                          reply_markup=reply.menu_kb.as_markup(resize_keyboard=True))
 
+@user_private_router.message(F.text == '⚙️')
+async def back_cmd(message: types.Message, state: FSMContext):
+    if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
+        await message.answer('Выбери действие:',
+                             reply_markup=reply.admin_kb.as_markup(resize_keyboard=True))
+    else:
+        await message.answer('Доступ закрыт.')
 
-@user_private_router.message(F.text.lower() == '11')
-async def liter_11_cmd(message: types.Message, state: FSMContext):
-    await state.update_data(user_class='11')
-    await message.answer('выбери литеру', reply_markup=reply.liter_kb_11.as_markup(resize_keyboard=True))
+
+@user_private_router.message(F.text.lower().in_([classs.lower() for classs in classes]))
+async def send_button(message: types.Message, state: FSMContext):
+    clas = message.text
+    if clas == '10' or clas == '11':
+        await state.update_data(user_class=clas)
+    else:
+        data = await state.get_data()
+        clas = data['user_class']
+    with open(f'data_{clas}.json', 'r', encoding="utf-8") as f:
+        file = json.load(f)
+        button_list = file['classes'][clas]
+    liter = ReplyKeyboardBuilder()
+    for button_text in button_list:
+        liter.button(text=button_text)
+    liter.button(text='🔀 Выбрать другой класс 🏫'),
+    liter.button(text='Вернуться в меню 📂🔙'),
+    liter.button(text='Вернуться в начало 🏠')
+    liter.adjust(5)
+    await message.answer("Выберите литеру:", reply_markup=liter.as_markup(resize_keyboard=True))
 
 
 @user_private_router.message(F.text == '🔀 Выбрать другой класс 🏫')
@@ -117,7 +145,7 @@ async def back_cmd(message: types.Message, state: FSMContext):
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
-@user_private_router.message(F.text.lower().in_([liter.lower() for liter in liters]))
+@user_private_router.message(F.text.lower().in_([var.lower() for var in class_variants()]))
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if len(data.keys()) >= 1:
@@ -133,10 +161,12 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
     await state.update_data(user_group=message.text)
     data = await state.get_data()
     if len(data.keys()) == 3:
-        with open('data.json', 'r', encoding="utf-8") as f:
+        with open(f'data_{data['user_class']}.json', 'r', encoding="utf-8") as f:
             file = json.load(f)
-        await message.answer('Рассписание на: ' + file['date'] + 
-            file[data['user_group']][data['user_class'] + ' ' + data['user_litera']])
+
+        await message.answer(
+            f'Рассписание на {file['date']}\n{data['user_litera']} {data['user_group']}{file[data['user_group']][data['user_litera']]}')
+
     else:
         await state.clear()
         await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
@@ -144,9 +174,14 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
 
 @user_private_router.message(F.text == '🔄')
 async def reload_data_cmd(message: types.Message, state: FSMContext):
-    all_day()
-    await message.answer('File downloaded successfully')
-    
+    if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
+        await message.answer('Сохраняю рассписание для 10 класса.')
+        all_day('10')
+        await message.answer('Сохраняю рассписание для 11 класса.')
+        all_day('11')
+        await message.answer('Файлы загружены')
+
+
 
 #
 # @user_private_router.callback_query(F.data == '10')
