@@ -3,6 +3,16 @@ import json
 
 from bs4 import BeautifulSoup
 
+from datetime import date, timedelta
+
+
+def create_date_list_with_step(start_date, end_date, step_days):
+  date_list = []
+  current_date = start_date
+  while current_date <= end_date:
+      date_list.append(current_date)
+      current_date += timedelta(days=step_days)
+  return reversed(date_list)
 
 
 def get_file():
@@ -24,14 +34,23 @@ def get_file():
 
     # авторизация
     ss = session.post("https://fms.eljur.ru/ajaxauthorize", data=data, headers=headers)
-    date = str(date.today()).split('-')
-    date = f'{date[2]}.{date[1]}'
-    # date = f'20.12'
+    dt_to = date.today()
+    dat = str(dt_to).split('-')
+    # print(dt_to)
+    data = None
 
-    json_string = session.get('https://fms.eljur.ru/journal-board-action')
-    bs = BeautifulSoup(json_string.text, "html.parser")
-    d = [el['href'] for el in bs.find_all("a", {"title": f"{date}.xlsx"})]
-    if not d:
+    for dt in create_date_list_with_step(start_date=date(int(dat[0])-1, 9, 1), end_date=dt_to, step_days=1):
+        # print(date(int(dat[0])-1, 9, 1),dt_to)
+        print(dt)
+        json_string = session.get('https://fms.eljur.ru/journal-board-action')
+        bs = BeautifulSoup(json_string.text, "html.parser")
+        dat = str(dt).split('-')
+        datee = f'{dat[2]}.{dat[1]}'
+        d = [el['href'] for el in bs.find_all("a", {"title": f"{datee}.xlsx"})]
+        if d:
+            data = d
+            break
+    if not data:
         print('рассписание отсутствует')
         return ''
 
@@ -42,16 +61,15 @@ def get_file():
         with open(file_Path, 'wb') as file:
             file.write(response.content)
         with open('date.txt', 'w') as f:
-            f.write(date)
+            f.write(datee)
         print('File downloaded successfully')
     else:
         print('Failed to download file')
 
     session.close()
 
-def read_excel_with_merged_cells(excel_file,classs):
 
-
+def read_excel_with_merged_cells(excel_file, classs):
     workbook = load_workbook(excel_file)
     for el in workbook.sheetnames:
         if classs in el:
@@ -84,57 +102,111 @@ def read_excel_with_merged_cells(excel_file,classs):
         table_data.append(row_data)
     return table_data
 
-def all_day():
+
+def all_day(shool_class):
     emojis_digits = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
     global classes_A
     global classes_B
     get_file()
-    sort_table_10 = read_excel_with_merged_cells("Sample.xlsx",'10')
-    sort_table_10 = sort_table_10[1:]
-    for i in range(len(sort_table_10)):
-        sort_table_10[i].pop(0)
+    sort_table = read_excel_with_merged_cells("Sample.xlsx", shool_class)
+    sort_table = sort_table[1:]
 
+    for i in range(len(sort_table)):
+        sort_table[i].pop(0)
 
-    sort_table_11 = read_excel_with_merged_cells("Sample.xlsx",'11')
-    sort_table_11 = sort_table_11[1:]
-    for i in range(len(sort_table_11)):
-        sort_table_11[i] = sort_table_11[i][3:]
-
-    sort_table_all = []
-
-    for i in range(len(sort_table_11)):
-        sort_table_all.append(sort_table_10[i] + sort_table_11[i])
-
-
-
-
+    sort_table_all = sort_table
 
     classes_A = {}
     classes_B = {}
+    classes = {shool_class: []}
+    classs = []
+
+    for el in sort_table:
+        if not el[1]:
+            for word in el[1:]:
+                if word and not word in classs:
+                    classs.append(word)
 
     for el in sort_table_all[0]:
         if el:
-            if '1' in el and el not in classes_A and el not in classes_A:
-                classes_A[el] = None
-                classes_B[el] = None
-
-
+            for char in el:
+                if char.isdigit():
+                    if el not in classes_A and el not in classes_B:
+                        classes_A[el] = None
+                        classes_B[el] = None
+                        if el in sort_table[0]:
+                            classs.append(el)
+                        break
+    classes[shool_class] = classs
+    dop_sort = []
 
     for cl in list(classes_A.keys()):
         rasp_A = []
         rasp_B = []
+        flag = 1
 
         for el in sort_table_all[2:]:
-            rasp_A.append(f'{emojis_digits[int(el[0])]} {str(el[1]).replace('\n','')}\n{el[sort_table_all[0].index(cl)]}')
-            rasp_B.append(f'{emojis_digits[int(el[0])]} {str(el[1]).replace('\n','')}\n{el[sort_table_all[0].index(cl)+1]}')
-        classes_A[cl] = f'\n----------------------\n{'\n----------------------\n'.join(rasp_A)}'.replace('\n\n','\n')
-        classes_B[cl] = f'\n----------------------\n{'\n----------------------\n'.join(rasp_B)}'.replace('\n\n','\n')
-        with open('date.txt', 'r') as f:
-            date = f.readline()
-        data = {'A' : classes_A , 'B' : classes_B,'date':date}
+            if el[0] and flag:
+                rasp_A.append(
+                    f'{emojis_digits[int(el[0])]} {str(el[1]).replace('\n', '')}\n{el[sort_table_all[0].index(cl)]}')
+                rasp_B.append(
+                    f'{emojis_digits[int(el[0])]} {str(el[1]).replace('\n', '')}\n{el[sort_table_all[0].index(cl) + 1]}')
+            else:
+                if flag:
+                    for i in range(2, len(el), 2):
+                        if el[i]:
+                            classes_A[el[i]] = None
+                            classes_B[el[i + 1]] = None
+                    flag = 0
 
-    with open('data.json', 'w', encoding='utf-8') as file:
+            if flag == 0 and not el in dop_sort:
+                dop_sort.append(el)
+
+            data_A = f'\n----------------------\n{'\n----------------------\n'.join(rasp_A)}'.replace('None',
+                                                                                                      '\nПусто').replace(
+                '\n\n', '\n')
+
+            classes_A[cl] = data_A
+
+            data_B = f'\n----------------------\n{'\n----------------------\n'.join(rasp_B)}'.replace('None',
+                                                                                                      '\nПусто').replace(
+                '\n\n', '\n')
+
+            classes_B[cl] = data_B
+
+    if dop_sort:
+        for i in range(1, len(dop_sort[0]), 2):
+            dop_A = []
+            dop_B = []
+            fl = 1
+            for obj in dop_sort[1:]:
+                if fl:
+                    dop_A.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[2]}')
+                    dop_B.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[3]}')
+                    continue
+                dop_A.append(str(obj[i]))
+                dop_B.append(str(obj[i + 1]))
+
+            if dop_A:
+                classes_A[
+                    dop_sort[0][i]] = f'\n----------------------\n{'\n----------------------\n'.join(dop_A)}'.replace(
+                    'None', '\nПусто').replace('\n\n', '\n')
+            if dop_B:
+                classes_B[dop_sort[0][
+                    i + 1]] = f'\n----------------------\n{'\n----------------------\n'.join(dop_B)}'.replace('None',
+                                                                                                              '\nПусто').replace(
+                    '\n\n', '\n')
+
+    with open('date.txt', 'r') as f:
+        date = f.readline()
+    data = {'A': classes_A, 'B': classes_B, 'date': date, 'classes': classes}
+
+    with open(f'data_{shool_class}.json', 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
 
-all_day()
+    print(dop_sort)
+
+
+all_day('11')
+all_day('10')
 
