@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, 
 from database.requests import get_tasks, set_user
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-
+import json
 
 
 start_kb = ReplyKeyboardBuilder()
@@ -21,9 +21,20 @@ menu_kb = ReplyKeyboardBuilder()
 menu_kb.add(
     KeyboardButton(text='Расписание 📆'),
     # KeyboardButton(text='Заметки 📝'),
-    KeyboardButton(text='Вернуться в начало 🏠')
+    KeyboardButton(text='Вернуться в начало 🏠'),
+    KeyboardButton(text='⚙️')
 )
 menu_kb.adjust(2, 1)
+
+async def send_reply_buttons():
+    with open(f'data_11.json', 'r', encoding="utf-8") as f:
+        file = json.load(f)
+        button_list = file['classes']
+    builder = ReplyKeyboardBuilder()
+    for button_text in button_list:
+        builder.button(text=button_text)
+    builder.adjust(5)
+    await message.answer("Выберите кнопку:", reply_markup=builder.as_markup(resize_keyboard=True))
 
 
 liter_kb_10 = ReplyKeyboardBuilder()
@@ -69,9 +80,14 @@ clases_kb.add(
     KeyboardButton(text='11'),
     KeyboardButton(text='Вернуться в меню 📂🔙'),
     KeyboardButton(text='Вернуться в начало 🏠'),
-    KeyboardButton(text='🔄')
 )
 clases_kb.adjust(2,1)
+
+admin_kb = ReplyKeyboardBuilder()
+admin_kb.add(
+    KeyboardButton(text='🔄'),
+    KeyboardButton(text='Вернуться в меню 📂🔙')
+)
 
 group_kb = ReplyKeyboardBuilder()
 group_kb.add(
