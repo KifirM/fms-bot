@@ -176,6 +176,8 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
 async def reload_data_cmd(message: types.Message, state: FSMContext):
     if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
         await message.answer('Сохраняю рассписание.')
+        get_file()
+        workbook = load_workbook('Sample.xlsx')
         for el in workbook.sheetnames:
             if '11' in el:
                 all_day('11')
