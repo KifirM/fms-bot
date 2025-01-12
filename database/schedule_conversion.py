@@ -213,15 +213,9 @@ def all_day(shool_class):
     with open(f'data_{shool_class}.json', 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
 
-    print(dop_sort)
+    
+    
 
-get_file()
-workbook = load_workbook('Sample.xlsx')
-for el in workbook.sheetnames:
-    if '11' in el:
-        all_day('11')
-    if '10' in el:
-        all_day('10')
 
 
 
