@@ -3,9 +3,13 @@ import json
 
 from bs4 import BeautifulSoup
 
-from datetime import date, timedelta
+from datetime import date, timedelta,datetime,timezone
+import pytz
 
 
+# kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
+# current_time_kras = datetime.now(kras_timezone)
+# print(current_time_kras.hour)
 def create_date_list_with_step(start_date, end_date, step_days):
   date_list = []
   current_date = start_date
@@ -16,6 +20,7 @@ def create_date_list_with_step(start_date, end_date, step_days):
 
 
 def get_file():
+    import pytz
     import requests
     from datetime import date
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36'
@@ -34,7 +39,12 @@ def get_file():
 
     # авторизация
     ss = session.post("https://fms.eljur.ru/ajaxauthorize", data=data, headers=headers)
-    dt_to = date.today()
+    kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
+    current_hour_kras = datetime.now(kras_timezone).hour
+    if current_hour_kras < 18:
+        dt_to = date.today()
+    else:
+        dt_to = date.today() + timedelta(days=1)
     dat = str(dt_to).split('-')
     # print(dt_to)
     data = None
@@ -107,7 +117,6 @@ def all_day(shool_class):
     emojis_digits = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
     global classes_A
     global classes_B
-    get_file()
     sort_table = read_excel_with_merged_cells("Sample.xlsx", shool_class)
     sort_table = sort_table[1:]
 
@@ -206,7 +215,13 @@ def all_day(shool_class):
 
     print(dop_sort)
 
+get_file()
+workbook = load_workbook('Sample.xlsx')
+for el in workbook.sheetnames:
+    if '11' in el:
+        all_day('11')
+    if '10' in el:
+        all_day('10')
 
-all_day('11')
-all_day('10')
+
 
