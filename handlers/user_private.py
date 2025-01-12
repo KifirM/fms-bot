@@ -175,11 +175,12 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
 @user_private_router.message(F.text == '🔄')
 async def reload_data_cmd(message: types.Message, state: FSMContext):
     if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
-        await message.answer('Сохраняю рассписание для 10 класса.')
-        all_day('10')
-        await message.answer('Сохраняю рассписание для 11 класса.')
-        all_day('11')
-        await message.answer('Файлы загружены')
+        await message.answer('Сохраняю рассписание.')
+        for el in workbook.sheetnames:
+            if '11' in el:
+                all_day('11')
+            if '10' in el:
+                all_day('10')
 
 
 
