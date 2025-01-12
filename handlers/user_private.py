@@ -1,5 +1,6 @@
 import json
 
+import schedule_conversion
 from aiogram import types, Router, F
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command, or_f
@@ -13,6 +14,9 @@ from filters.chat_types import ChatTypeFilter
 from keyboards import reply
 from database.requests import del_task, set_task
 
+from openpyxl import load_workbook
+from schedule_conversion import get_file
+
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))
 
@@ -22,6 +26,14 @@ classes = ['10', '11']
 
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, InlineKeyboardButton
 
+def get_time_tab():
+    get_file()
+    workbook = load_workbook('Sample.xlsx')
+    for el in workbook.sheetnames:
+        if '11' in el:
+            all_day('11')
+        if '10' in el:
+            all_day('10')
 
 def class_variants():
     with open(f'data_10.json', 'r', encoding="utf-8") as f:
@@ -176,13 +188,8 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
 async def reload_data_cmd(message: types.Message, state: FSMContext):
     if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
         await message.answer('Сохраняю рассписание.')
-        get_file()
-        workbook = load_workbook('Sample.xlsx')
-        for el in workbook.sheetnames:
-            if '11' in el:
-                all_day('11')
-            if '10' in el:
-                all_day('10')
+        get_time_tab()
+        await message.answer('Рассписание обновлено.')
 
 
 
