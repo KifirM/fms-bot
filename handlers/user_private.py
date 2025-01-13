@@ -1,4 +1,5 @@
 import json
+import os
 
 from aiogram import types, Router, F
 from aiogram.enums import ParseMode
@@ -15,6 +16,8 @@ from database.requests import del_task, set_task
 
 from openpyxl import load_workbook
 from database.schedule_conversion import get_file
+
+from aiogram.types import Message, FSInputFile
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))
@@ -211,3 +214,9 @@ async def help_cmd(message: types.Message):
 @user_private_router.message(F.text.lower() == 'контакты 📞')
 async def contacts_cmd(message: types.Message):
     await message.answer('<b>Контакты:</b>\nПо вопросам и предложениям — @k1f1r1k @ag_st_d', parse_mode='HTML')
+
+@user_private_router.message(F.text == '📒')
+async def cmd_start(message: Message, state: FSMContext):
+    if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
+        db_file = FSInputFile('db.sqlite3')
+        await message.answer_document(db_file)
