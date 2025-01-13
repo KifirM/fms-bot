@@ -37,6 +37,42 @@ async def send_reply_buttons():
     await message.answer("Выберите кнопку:", reply_markup=builder.as_markup(resize_keyboard=True))
 
 
+liter_kb_10 = ReplyKeyboardBuilder()
+liter_kb_10.add(
+    KeyboardButton(text='Μ'),
+    KeyboardButton(text='Ξ'),
+    KeyboardButton(text='Ο'),
+    KeyboardButton(text='Π'),
+    KeyboardButton(text='Ρ'),
+    KeyboardButton(text='Σ'),
+    KeyboardButton(text='Τ'),
+    KeyboardButton(text='Φ'),
+    KeyboardButton(text='Χ'),
+    KeyboardButton(text='Ψ'),
+    KeyboardButton(text='🔀 Выбрать другой класс 🏫'),
+    KeyboardButton(text='Вернуться в меню 📂🔙'),
+    KeyboardButton(text='Вернуться в начало 🏠')
+)
+liter_kb_10.adjust(5)
+
+
+liter_kb_11 = ReplyKeyboardBuilder()
+liter_kb_11.add(
+    KeyboardButton(text='Β'),
+    KeyboardButton(text='Ζ'),
+    KeyboardButton(text='Γ'),
+    KeyboardButton(text='Ι'),
+    KeyboardButton(text='Δ'),
+    KeyboardButton(text='Η'),
+    KeyboardButton(text='Θ'),
+    KeyboardButton(text='Ε'),
+    KeyboardButton(text='К'),
+    KeyboardButton(text='Λ'),
+    KeyboardButton(text='🔀 Выбрать другой класс 🏫'),
+    KeyboardButton(text='Вернуться в меню 📂🔙'),
+    KeyboardButton(text='Вернуться в начало 🏠')
+)
+liter_kb_11.adjust(5)
 
 clases_kb = ReplyKeyboardBuilder()
 clases_kb.add(
@@ -49,6 +85,7 @@ clases_kb.adjust(2,1)
 
 admin_kb = ReplyKeyboardBuilder()
 admin_kb.add(
+KeyboardButton(text='📒'),
     KeyboardButton(text='🔄'),
     KeyboardButton(text='Вернуться в меню 📂🔙')
 )
