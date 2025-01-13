@@ -1,6 +1,5 @@
 import json
 
-import schedule_conversion
 from aiogram import types, Router, F
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command, or_f
@@ -15,7 +14,7 @@ from keyboards import reply
 from database.requests import del_task, set_task
 
 from openpyxl import load_workbook
-from schedule_conversion import get_file
+from database.schedule_conversion import get_file
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))
