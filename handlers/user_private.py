@@ -159,7 +159,7 @@ async def back_cmd(message: types.Message, state: FSMContext):
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
-@user_private_router.message(F.text.lower().in_([var.lower() for var in class_variants()]))
+@user_private_router.message(lambda message: message.text.lower() in [var.lower() for var in class_variants()])
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if len(data.keys()) >= 1:
@@ -177,7 +177,7 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
     if len(data.keys()) == 3:
         with open(f'data_{data['user_class']}.json', 'r', encoding="utf-8") as f:
             file = json.load(f)
-
+        print(data['user_litera'])
         await message.answer(
             f'Рассписание на {file['date']}\n{data['user_litera']} {data['user_group']}{file[data['user_group']][data['user_litera']]}')
 
