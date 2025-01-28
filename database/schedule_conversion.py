@@ -41,7 +41,7 @@ def get_file():
     ss = session.post("https://fms.eljur.ru/ajaxauthorize", data=data, headers=headers)
     kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
     current_hour_kras = datetime.now(kras_timezone).hour
-    if current_hour_kras < 18:
+    if current_hour_kras < 16:
         dt_to = date.today()
     else:
         dt_to = date.today() + timedelta(days=1)
