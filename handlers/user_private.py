@@ -19,6 +19,9 @@ from database.schedule_conversion import get_file
 
 from aiogram.types import Message, FSInputFile
 
+from datetime import date, timedelta,datetime,timezone
+import pytz
+
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))
 
@@ -26,10 +29,39 @@ liters = ['Μ', 'Ξ', 'Ο', 'Π', 'Ρ', 'Σ', 'Τ', 'Φ', 'Χ', 'Ψ', 'Β', 'Ζ'
 groups = ['B', 'A']
 classes = ['10', '11']
 
+
+async def download():
+    kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
+    current_hour_kras = datetime.now(kras_timezone).hour
+    with open(f'date.txt', 'r', encoding="utf-8") as f:
+        datt = f.read()
+        datt = datetime.strptime(datt, '%Y-%m-%d').date()
+    dt_to = date.today()
+
+    if datt > dt_to:
+        return 0
+    elif datt == dt_to:
+        if current_hour_kras >= 16:
+            dt_to = date.today() + timedelta(days=1)
+            get_file(dt_to)
+            get_time_tab()
+            return 1
+        else:
+            return 0
+    elif datt < dt_to:
+        if current_hour_kras >= 16:
+            dt_to = date.today() + timedelta(days=1)
+            get_file(dt_to)
+            get_time_tab()
+            return 1
+        else:
+            get_file(dt_to)
+            get_time_tab()
+            return 1
+
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, InlineKeyboardButton
 
 def get_time_tab():
-    get_file()
     workbook = load_workbook('Sample.xlsx')
     for el in workbook.sheetnames:
         if '11' in el:
@@ -100,12 +132,16 @@ async def notes_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'расписание 📆')
 async def class_cmd(message: types.Message):
+    if await download():
+        await state.set_state()
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
 @user_private_router.message(F.text == 'Выбрать другую литеру 🔠')
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    if await download():
+        await state.set_state()
     if len(data.keys()) == 2 or len(data.keys()) == 3:
         if data['user_class']:
             await send_button(message, state)
@@ -135,6 +171,8 @@ async def back_cmd(message: types.Message, state: FSMContext):
 @user_private_router.message(F.text.lower().in_([classs.lower() for classs in classes]))
 async def send_button(message: types.Message, state: FSMContext):
     clas = message.text
+    if await download():
+        await state.set_state()
     if clas == '10' or clas == '11':
         await state.update_data(user_class=clas)
     else:
@@ -162,6 +200,8 @@ async def back_cmd(message: types.Message, state: FSMContext):
 @user_private_router.message(lambda message: message.text.lower() in [var.lower() for var in class_variants()])
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    if await download():
+        await state.set_state()
     if len(data.keys()) >= 1:
         await state.update_data(user_litera=message.text)
         await message.answer('выбери группу', reply_markup=reply.group_kb.as_markup(resize_keyboard=True))
@@ -174,6 +214,8 @@ async def back_cmd(message: types.Message, state: FSMContext):
 async def group_A_cmd(message: types.Message, state: FSMContext):
     await state.update_data(user_group=message.text)
     data = await state.get_data()
+    if await  download():
+        await state.set_state()
     if len(data.keys()) == 3:
         with open(f'data_{data['user_class']}.json', 'r', encoding="utf-8") as f:
             file = json.load(f)
@@ -190,6 +232,7 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
 async def reload_data_cmd(message: types.Message, state: FSMContext):
     if message.from_user.id == 5480167477 or message.from_user.id == 1550008797:
         await message.answer('Сохраняю рассписание.')
+        get_file(date.today())
         get_time_tab()
         await message.answer('Рассписание обновлено.')
 
