@@ -19,7 +19,9 @@ def create_date_list_with_step(start_date, end_date, step_days):
   return reversed(date_list)
 
 
-def get_file():
+
+
+def get_file(dt_to):
     import pytz
     import requests
     from datetime import date
@@ -41,21 +43,15 @@ def get_file():
     ss = session.post("https://fms.eljur.ru/ajaxauthorize", data=data, headers=headers)
     kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
     current_hour_kras = datetime.now(kras_timezone).hour
-    if current_hour_kras < 16:
-        dt_to = date.today()
-    else:
-        dt_to = date.today() + timedelta(days=1)
     dat = str(dt_to).split('-')
-    # print(dt_to)
+    datee = f'{dat[2]}.{dat[1]}'
     data = None
 
     for dt in create_date_list_with_step(start_date=date(int(dat[0])-1, 9, 1), end_date=dt_to, step_days=1):
-        # print(date(int(dat[0])-1, 9, 1),dt_to)
+
         print(dt)
         json_string = session.get('https://fms.eljur.ru/journal-board-action')
         bs = BeautifulSoup(json_string.text, "html.parser")
-        dat = str(dt).split('-')
-        datee = f'{dat[2]}.{dat[1]}'
         d = [el['href'] for el in bs.find_all("a", {"title": f"{datee}.xlsx"})]
         if d:
             data = d
@@ -71,7 +67,7 @@ def get_file():
         with open(file_Path, 'wb') as file:
             file.write(response.content)
         with open('date.txt', 'w') as f:
-            f.write(datee)
+            f.write(str(dt_to))
         print('File downloaded successfully')
     else:
         print('Failed to download file')
