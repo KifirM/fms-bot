@@ -200,7 +200,7 @@ async def back_cmd(message: types.Message, state: FSMContext):
 async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if await download():
-        await state.set_state()
+        await state.clear()
     if len(data.keys()) >= 1:
         await state.update_data(user_litera=message.text)
         await message.answer('выбери группу', reply_markup=reply.group_kb.as_markup(resize_keyboard=True))
@@ -214,7 +214,7 @@ async def group_A_cmd(message: types.Message, state: FSMContext):
     await state.update_data(user_group=message.text)
     data = await state.get_data()
     if await  download():
-        await state.set_state()
+        await state.clear()
     if len(data.keys()) == 3:
         with open(f'data_{data['user_class']}.json', 'r', encoding="utf-8") as f:
             file = json.load(f)
