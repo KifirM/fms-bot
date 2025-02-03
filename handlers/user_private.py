@@ -132,8 +132,7 @@ async def notes_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'расписание 📆')
 async def class_cmd(message: types.Message):
-    if await download():
-        await state.set_state()
+    await download() 
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
