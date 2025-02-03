@@ -137,10 +137,10 @@ async def class_cmd(message: types.Message):
 
 
 @user_private_router.message(F.text == 'Выбрать другую литеру 🔠')
-async def back_cmd(message: types.Message, state: FSMContext):
-    data = await state.get_data()
+async def back_cmd(message: types.Message, state: FSMContext):    
     if await download():
         await state.set_state()
+    data = await state.get_data()
     if len(data.keys()) == 2 or len(data.keys()) == 3:
         if data['user_class']:
             await send_button(message, state)
