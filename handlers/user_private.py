@@ -132,15 +132,16 @@ async def notes_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'расписание 📆')
 async def class_cmd(message: types.Message):
-    await download() 
+    if await download():
+        await state.set_state()
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
 @user_private_router.message(F.text == 'Выбрать другую литеру 🔠')
-async def back_cmd(message: types.Message, state: FSMContext):    
-    if await download():
-        await state.clear()
+async def back_cmd(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    if await download():
+        await state.set_state()
     if len(data.keys()) == 2 or len(data.keys()) == 3:
         if data['user_class']:
             await send_button(message, state)
@@ -166,7 +167,7 @@ async def back_cmd(message: types.Message, state: FSMContext):
     else:
         await message.answer('Доступ закрыт.')
 
-
+# ====== КЛАСС
 @user_private_router.message(F.text.lower().in_([classs.lower() for classs in classes]))
 async def send_button(message: types.Message, state: FSMContext):
     clas = message.text
@@ -195,12 +196,12 @@ async def back_cmd(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
-
+# ====== ЛИТЕРА
 @user_private_router.message(lambda message: message.text.lower() in [var.lower() for var in class_variants()])
 async def back_cmd(message: types.Message, state: FSMContext):
-    data = await state.get_data()
     if await download():
         await state.clear()
+    data = await state.get_data()
     if len(data.keys()) >= 1:
         await state.update_data(user_litera=message.text)
         await message.answer('выбери группу', reply_markup=reply.group_kb.as_markup(resize_keyboard=True))
@@ -209,12 +210,13 @@ async def back_cmd(message: types.Message, state: FSMContext):
         await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
+# ====== ГРУППА
 @user_private_router.message(F.text.lower().in_([group.lower() for group in groups]))
 async def group_A_cmd(message: types.Message, state: FSMContext):
     await state.update_data(user_group=message.text)
-    data = await state.get_data()
     if await  download():
         await state.clear()
+    data = await state.get_data()
     if len(data.keys()) == 3:
         with open(f'data_{data['user_class']}.json', 'r', encoding="utf-8") as f:
             file = json.load(f)
