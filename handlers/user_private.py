@@ -34,30 +34,37 @@ async def download():
     kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
     current_hour_kras = datetime.now(kras_timezone).hour
     with open(f'date.txt', 'r', encoding="utf-8") as f:
-        datt = f.read()
+        datt = f.read().strip()
         datt = datetime.strptime(datt, '%Y-%m-%d').date()
-    dt_to = date.today()
 
-    if datt > dt_to:
-        return 0
-    elif datt == dt_to:
-        if current_hour_kras >= 16:
-            dt_to = date.today() + timedelta(days=1)
-            get_file(dt_to)
-            get_time_tab()
-            return 1
-        else:
+    dt_to = date.today()
+    print(date.isoweekday(dt_to))
+    if date.isoweekday(dt_to) == 6:
+        dt_to = date.today() + timedelta(days=2)
+        get_file(dt_to)
+        get_time_tab()
+        return 1
+    else:
+        if datt > dt_to:
             return 0
-    elif datt < dt_to:
-        if current_hour_kras >= 16:
-            dt_to = date.today() + timedelta(days=1)
-            get_file(dt_to)
-            get_time_tab()
-            return 1
-        else:
-            get_file(dt_to)
-            get_time_tab()
-            return 1
+        elif datt == dt_to:
+            if current_hour_kras >= 16:
+                dt_to = date.today() + timedelta(days=1)
+                get_file(dt_to)
+                get_time_tab()
+                return 1
+            else:
+                return 0
+        elif datt < dt_to:
+            if current_hour_kras >= 16:
+                dt_to = date.today() + timedelta(days=1)
+                get_file(dt_to)
+                get_time_tab()
+                return 1
+            else:
+                get_file(dt_to)
+                get_time_tab()
+                return 1
 
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, InlineKeyboardButton
 
@@ -214,7 +221,9 @@ async def back_cmd(message: types.Message, state: FSMContext):
 @user_private_router.message(F.text.lower().in_([group.lower() for group in groups]))
 async def group_A_cmd(message: types.Message, state: FSMContext):
     await state.update_data(user_group=message.text)
-    if await  download():
+    x = await download()
+    print(x)
+    if x :
         await state.clear()
     data = await state.get_data()
     if len(data.keys()) == 3:
