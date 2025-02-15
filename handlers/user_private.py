@@ -37,35 +37,42 @@ async def download():
         datt = f.read().strip()
         datt = datetime.strptime(datt, '%Y-%m-%d').date()
 
+
+    # print(date.isoweekday(date.today()))
+
     dt_to = date.today()
-    print(date.isoweekday(dt_to))
-#    if date.isoweekday(dt_to) == 6:
-     if 0:
-        dt_to = date.today() + timedelta(days=2)
-        get_file(dt_to)
-        get_time_tab()
-        return 1
-    else:
-        if datt > dt_to:
+    if datt > dt_to:
+        return 0
+    elif datt == dt_to:
+        if current_hour_kras >= 16:
+            if date.isoweekday(dt_to) == 6:
+                dt_to = date.today() + timedelta(days=2)
+                get_file(dt_to)
+                get_time_tab()
+                return 1
+            else:
+                dt_to = date.today() + timedelta(days=1)
+                get_file(dt_to)
+                get_time_tab()
+                return 1
+        else:
             return 0
-        elif datt == dt_to:
-            if current_hour_kras >= 16:
-                dt_to = date.today() + timedelta(days=1)
+    elif datt < dt_to:
+        if current_hour_kras >= 16:
+            if date.isoweekday(dt_to) == 6:
+                dt_to = date.today() + timedelta(days=2)
                 get_file(dt_to)
                 get_time_tab()
                 return 1
             else:
-                return 0
-        elif datt < dt_to:
-            if current_hour_kras >= 16:
                 dt_to = date.today() + timedelta(days=1)
                 get_file(dt_to)
                 get_time_tab()
                 return 1
-            else:
-                get_file(dt_to)
-                get_time_tab()
-                return 1
+        else:
+            get_file(dt_to)
+            get_time_tab()
+            return 1
 
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, InlineKeyboardButton
 
@@ -140,6 +147,8 @@ async def notes_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'расписание 📆')
 async def class_cmd(message: types.Message):
+    if await download():
+        await state.set_state()
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
 
 
@@ -265,7 +274,7 @@ async def help_cmd(message: types.Message):
 
 @user_private_router.message(F.text.lower() == 'контакты 📞')
 async def contacts_cmd(message: types.Message):
-    await message.answer('<b>Контакты:</b>\nПо вопросам и предложениям — @none_create', parse_mode='HTML')
+    await message.answer('<b>Контакты:</b>\nПо вопросам и предложениям — @k1f1r1k @ag_st_d', parse_mode='HTML')
 
 @user_private_router.message(F.text == '📒')
 async def cmd_start(message: Message, state: FSMContext):
