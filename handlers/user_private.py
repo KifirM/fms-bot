@@ -39,7 +39,8 @@ async def download():
 
     dt_to = date.today()
     print(date.isoweekday(dt_to))
-    if date.isoweekday(dt_to) == 6:
+#    if date.isoweekday(dt_to) == 6:
+     if 0:
         dt_to = date.today() + timedelta(days=2)
         get_file(dt_to)
         get_time_tab()
