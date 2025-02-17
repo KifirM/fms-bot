@@ -45,7 +45,7 @@ async def download():
         return 0
     elif datt == dt_to:
         if current_hour_kras >= 16:
-            if date.isoweekday(dt_to) == 6:
+            if 0 and date.isoweekday(dt_to) == 6:
                 dt_to = date.today() + timedelta(days=2)
                 get_file(dt_to)
                 get_time_tab()
@@ -59,7 +59,7 @@ async def download():
             return 0
     elif datt < dt_to:
         if current_hour_kras >= 16:
-            if date.isoweekday(dt_to) == 6:
+            if 0 and date.isoweekday(dt_to) == 6:
                 dt_to = date.today() + timedelta(days=2)
                 get_file(dt_to)
                 get_time_tab()
