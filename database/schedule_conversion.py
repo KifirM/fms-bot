@@ -178,20 +178,22 @@ def all_day(shool_class):
                 '\n\n', '\n')
 
             classes_B[cl] = data_B
-
+    print(dop_sort)
     if dop_sort:
         for i in range(1, len(dop_sort[0]), 2):
             dop_A = []
             dop_B = []
             fl = 1
+
             for obj in dop_sort[1:]:
+
                 if fl:
-                    dop_A.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[2]}')
-                    dop_B.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[3]}')
+                    dop_A.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[i]}')
+                    dop_B.append(f'{emojis_digits[int(obj[0])]} {obj[1]} {obj[i+1]}')
                     continue
                 dop_A.append(str(obj[i]))
                 dop_B.append(str(obj[i + 1]))
-
+            print(dop_A)
             if dop_A:
                 classes_A[
                     dop_sort[0][i]] = f'\n----------------------\n{'\n----------------------\n'.join(dop_A)}'.replace(
@@ -202,6 +204,7 @@ def all_day(shool_class):
                                                                                                               '\nПусто').replace(
                     '\n\n', '\n')
 
+
     with open('date.txt', 'r') as f:
         date = f.readline()
     data = {'A': classes_A, 'B': classes_B, 'date': date, 'classes': classes}
@@ -209,7 +212,7 @@ def all_day(shool_class):
     with open(f'data_{shool_class}.json', 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
 
-    
+
     
 
 
