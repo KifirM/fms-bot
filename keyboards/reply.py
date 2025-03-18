@@ -13,18 +13,18 @@ start_kb.add(
     KeyboardButton(text='Помощь ❓'),
     KeyboardButton(text='Контакты 📞'),
 )
-start_kb.adjust(1, 2)
+start_kb.adjust(1, 2,)
 del_start_kb = ReplyKeyboardRemove()
 
 
 menu_kb = ReplyKeyboardBuilder()
 menu_kb.add(
     KeyboardButton(text='Расписание 📆'),
-    # KeyboardButton(text='Заметки 📝'),
     KeyboardButton(text='Вернуться в начало 🏠'),
+    KeyboardButton(text='Поиск 🔎❓'),
     KeyboardButton(text='⚙️')
 )
-menu_kb.adjust(2, 1)
+menu_kb.adjust(2, 3)
 
 async def send_reply_buttons():
     with open(f'data_11.json', 'r', encoding="utf-8") as f:
