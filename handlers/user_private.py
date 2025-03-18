@@ -29,16 +29,32 @@ liters = ['Μ', 'Ξ', 'Ο', 'Π', 'Ρ', 'Σ', 'Τ', 'Φ', 'Χ', 'Ψ', 'Β', 'Ζ'
 groups = ['B', 'A']
 classes = ['10', '11']
 
-
+def search(search_el = '_-_-_'):
+    search_el = str(search_el)
+    rez = ''
+    with open(f'data_all.json', 'r', encoding='UTF-8') as f:
+        file = json.load(f)
+        for el in file:
+            for data in file[el]:
+                if data != 'null':
+                    text = file[el][data]
+                    if search_el in text:
+                        text = str(text).split('\n----------------------\n')
+                        text[0] = data + ' ' + el
+                        rez += ('\n----------------------\n' + text[0])
+                        for text_el in text[1:]:
+                            if search_el in text_el:
+                                rez += ('\n----------------------\n' + text_el)
+    if rez:
+        return rez
+    else:
+        return "Элемент не найден."
 async def download():
     kras_timezone = pytz.timezone('Asia/Krasnoyarsk')
     current_hour_kras = datetime.now(kras_timezone).hour
     with open(f'date.txt', 'r', encoding="utf-8") as f:
         datt = f.read().strip()
         datt = datetime.strptime(datt, '%Y-%m-%d').date()
-
-
-    # print(date.isoweekday(date.today()))
 
     dt_to = date.today()
     if datt > dt_to:
@@ -146,7 +162,7 @@ async def notes_cmd(message: types.Message):
 #                          reply_markup=await reply.tasks(message.from_user.id))
 
 @user_private_router.message(F.text.lower() == 'расписание 📆')
-async def class_cmd(message: types.Message):
+async def class_cmd(message: types.Message, state: FSMContext):
     if await download():
         await state.set_state()
     await message.answer('выбери класс', reply_markup=reply.clases_kb.as_markup(resize_keyboard=True))
@@ -254,7 +270,10 @@ async def reload_data_cmd(message: types.Message, state: FSMContext):
         get_time_tab()
         await message.answer('Рассписание обновлено.')
 
-
+@user_private_router.message(F.text.startswith('🔎'))
+async def reoad_dta_cmd(message: types.Message, state: FSMContext):
+        txt = str(message.text)
+        await message.answer(search(txt[1:]))
 
 #
 # @user_private_router.callback_query(F.data == '10')
@@ -265,6 +284,10 @@ async def reload_data_cmd(message: types.Message, state: FSMContext):
 # async def tenth_classes(message: types.Message):
 #     await message.answer(text= '11 класс',reply_markup=reply.liter_kb_11())
 
+@user_private_router.message(F.text == 'Поиск 🔎❓')
+async def help_cmd(message: types.Message):
+
+    await message.answer('📌Для осуществления поиска введите эмоджи лупа после чего напишите без пробела ключевое слово.\n{🔎Ключевое слово}')
 
 @user_private_router.message(F.text.lower() == 'помощь ❓')
 async def help_cmd(message: types.Message):
