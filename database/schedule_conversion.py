@@ -211,6 +211,21 @@ def all_day(shool_class):
 
     with open(f'data_{shool_class}.json', 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
+        with open(f'data_{shool_class}.json', 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+
+    data_A = {}
+    data_B = {}
+
+    for clas in {'10', '11'}:
+        with open(f'data_{clas}.json', 'r', encoding='utf-8') as f:
+            file = json.load(f)
+            data_A = data_A | file['A']
+            data_B = data_B | file['B']
+
+    data = {'A': data_A, 'B': data_B}
+    with open(f'data_all.json', 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
 
 
     
