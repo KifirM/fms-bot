@@ -20,8 +20,7 @@ del_start_kb = ReplyKeyboardRemove()
 menu_kb = ReplyKeyboardBuilder()
 menu_kb.add(
     KeyboardButton(text='Расписание 📆'),
-    KeyboardButton(text='Вернуться в начало 🏠'),
-    KeyboardButton(text='Поиск 🔎❓'),
+    KeyboardButton(text='Вернуться в начало 🏠'),
     KeyboardButton(text='⚙️')
 )
 menu_kb.adjust(2, 3)
