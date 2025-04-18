@@ -268,7 +268,12 @@ async def reload_data_cmd(message: types.Message, state: FSMContext):
         await message.answer('Сохраняю рассписание.')
         get_file(date.today())
         get_time_tab()
-        await message.answer('Рассписание обновлено.')
+        await message.answer('Рассписание обновлено.')
+
+@user_private_router.message(F.text.startswith('🔎'))
+async def reoad_dta_cmd(message: types.Message, state: FSMContext):
+        txt = str(message.text)
+        await message.answer(search(txt[1:]))
 
 #
 # @user_private_router.callback_query(F.data == '10')
